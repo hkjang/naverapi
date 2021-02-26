@@ -9,7 +9,7 @@ var client_config  = require('./config/client-config.json');
 var client_id = client_config.client_id;
 var client_secret = client_config.client_secret;
 var state = "RAMDOM_STATE";
-var redirectURI = encodeURI("http://127.0.0.1:3000/callback");
+var redirectURI = encodeURI(client_config.callback_url);
 var api_url = "";
 
 var token = "YOUR_ACCESS_TOKEN";
