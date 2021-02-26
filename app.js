@@ -142,12 +142,8 @@ app.post('/cafe/post/multipart', function (req, res) {
     content:req.body.content,
     image: [
       {
-        value: fs.createReadStream(__dirname + req.body.filename1),
-        options: { filename: req.body.filename1,  contentType: 'image/jpeg'}
-      },
-      {
-        value: fs.createReadStream(__dirname + req.body.filename2),
-        options: {filename: req.body.filename2, contentType: 'image/jpeg'}
+        value: fs.createReadStream(req.body.filepath),
+        options: { filename: req.body.filename,  contentType: 'image/png'}
       }
     ]
   };
@@ -159,6 +155,7 @@ app.post('/cafe/post/multipart', function (req, res) {
   console.log( request.head  );
   _req.pipe(res); // 브라우저로 출력
 });
+
 
 
 app.listen(3000, function () {
