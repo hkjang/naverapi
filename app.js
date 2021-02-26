@@ -5,6 +5,10 @@ var express = require('express');
 var app = express();
 var request = require('request');
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 var client_config  = require('./config/client-config.json');
 var client_id = client_config.client_id;
 var client_secret = client_config.client_secret;
@@ -104,11 +108,11 @@ app.get('/member', function (req, res) {
 // var menuid = "MENU_ID"; // 카페 게시판 id (상품게시판은 입력 불가)
 // var subject = encodeURI("네이버 카페 api Test node js");
 // var content = encodeURI("네이버 카페 api로 글을 카페에 글을 올려봅니다.");
-app.get('/cafe/post', function (req, res) {
-  var api_url = 'https://openapi.naver.com/v1/cafe/' + req.query.clubid + '/menu/' + req.query.menuid + '/articles';
+app.post('/cafe/post', function (req, res) {
+  var api_url = 'https://openapi.naver.com/v1/cafe/' + req.body.clubid + '/menu/' + req.body.menuid + '/articles';
   var options = {
     url: api_url,
-    form: {'subject':req.query.subject, 'content':req.query.content},
+    form: {'subject':req.body.subject, 'content':req.body.content},
     headers: {'Authorization': header}
   };
   request.post(options, function (error, response, body) {
@@ -131,19 +135,19 @@ app.get('/cafe/post', function (req, res) {
 // var subject = encodeURI("네이버 카페 api Test node js");
 // var content = encodeURI("node js multi-part 네이버 카페 api로 글을 카페에 글을 올려봅니다.");
 var fs = require('fs');
-app.get('/cafe/post/multipart', function (req, res) {
-  var api_url = 'https://openapi.naver.com/v1/cafe/' + req.query.clubid + '/menu/' + req.query.menuid + '/articles';
+app.post('/cafe/post/multipart', function (req, res) {
+  var api_url = 'https://openapi.naver.com/v1/cafe/' + req.body.clubid + '/menu/' + req.body.menuid + '/articles';
   var _formData = {
-    subject:req.query.subject,
-    content:req.query.content,
+    subject:req.body.subject,
+    content:req.body.content,
     image: [
       {
-        value: fs.createReadStream(__dirname + req.query.filename1),
-        options: { filename: filename1,  contentType: 'image/jpeg'}
+        value: fs.createReadStream(__dirname + req.body.filename1),
+        options: { filename: req.body.filename1,  contentType: 'image/jpeg'}
       },
       {
-        value: fs.createReadStream(__dirname + req.query.filename2),
-        options: {filename: req.query.filename2, contentType: 'image/jpeg'}
+        value: fs.createReadStream(__dirname + req.body.filename2),
+        options: {filename: req.body.filename2, contentType: 'image/jpeg'}
       }
     ]
   };
