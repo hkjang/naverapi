@@ -13,6 +13,7 @@ var redirectURI = encodeURI("http://127.0.0.1:3000/callback");
 var api_url = "";
 
 var token = "YOUR_ACCESS_TOKEN";
+var refresh_token = "YOUR_REFRESH_TOKEN";
 var header = ""; // Bearer 다음에 공백 추가
 
 
@@ -38,6 +39,7 @@ app.get('/callback', function (req, res) {
       console.log(typeof body);
       if(JSON.parse(body)){
         token = JSON.parse(body).access_token;
+        refresh_token = JSON.parse(body).refresh_token;
         header = "Bearer " + token;
 
       }
@@ -49,6 +51,33 @@ app.get('/callback', function (req, res) {
   });
 });
 
+app.get('/refreshtoken', function (req, res) {
+  code = req.query.code;
+  state = req.query.state;
+  api_url = 'https://nid.naver.com/oauth2.0/token?grant_type=refresh_token&&client_id='
+      + client_id + '&client_secret=' + client_secret + '&refresh_token=' + refresh_token;
+
+  var options = {
+    url: api_url,
+    headers: {'X-Naver-Client-Id':client_id, 'X-Naver-Client-Secret': client_secret}
+  };
+  request.get(options, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      res.writeHead(200, {'Content-Type': 'text/json;charset=utf-8'});
+      console.log(body);
+      console.log(typeof body);
+      if(JSON.parse(body)){
+        token = JSON.parse(body).access_token;
+        header = "Bearer " + token;
+
+      }
+      res.end(body);
+    } else {
+      res.status(response.statusCode).end();
+      console.log('error = ' + response.statusCode);
+    }
+  });
+});
 
 app.get('/member', function (req, res) {
   var api_url = 'https://openapi.naver.com/v1/nid/me';
@@ -71,15 +100,15 @@ app.get('/member', function (req, res) {
 });
 
 
-var clubid = "CLUB_ID";// 카페의 고유 ID값
-var menuid = "MENU_ID"; // 카페 게시판 id (상품게시판은 입력 불가)
-var subject = encodeURI("네이버 카페 api Test node js");
-var content = encodeURI("네이버 카페 api로 글을 카페에 글을 올려봅니다.");
+// var clubid = "CLUB_ID";// 카페의 고유 ID값
+// var menuid = "MENU_ID"; // 카페 게시판 id (상품게시판은 입력 불가)
+// var subject = encodeURI("네이버 카페 api Test node js");
+// var content = encodeURI("네이버 카페 api로 글을 카페에 글을 올려봅니다.");
 app.get('/cafe/post', function (req, res) {
-  var api_url = 'https://openapi.naver.com/v1/cafe/' + clubid + '/menu/' + menuid + '/articles';
+  var api_url = 'https://openapi.naver.com/v1/cafe/' + req.query.clubid + '/menu/' + req.query.menuid + '/articles';
   var options = {
     url: api_url,
-    form: {'subject':subject, 'content':content},
+    form: {'subject':req.query.subject, 'content':req.query.content},
     headers: {'Authorization': header}
   };
   request.post(options, function (error, response, body) {
@@ -97,24 +126,24 @@ app.get('/cafe/post', function (req, res) {
 });
 
 
-var clubid = "YOUR_CAFE_ID";// 카페의 고유 ID값
-var menuid = "YOUR_CAFE_BBS_ID"; // 카페 게시판 id (상품게시판은 입력 불가)
-var subject = encodeURI("네이버 카페 api Test node js");
-var content = encodeURI("node js multi-part 네이버 카페 api로 글을 카페에 글을 올려봅니다.");
+// var clubid = "YOUR_CAFE_ID";// 카페의 고유 ID값
+// var menuid = "YOUR_CAFE_BBS_ID"; // 카페 게시판 id (상품게시판은 입력 불가)
+// var subject = encodeURI("네이버 카페 api Test node js");
+// var content = encodeURI("node js multi-part 네이버 카페 api로 글을 카페에 글을 올려봅니다.");
 var fs = require('fs');
 app.get('/cafe/post/multipart', function (req, res) {
-  var api_url = 'https://openapi.naver.com/v1/cafe/' + clubid + '/menu/' + menuid + '/articles';
+  var api_url = 'https://openapi.naver.com/v1/cafe/' + req.query.clubid + '/menu/' + req.query.menuid + '/articles';
   var _formData = {
-    subject:subject,
-    content:content,
+    subject:req.query.subject,
+    content:req.query.content,
     image: [
       {
-        value: fs.createReadStream(__dirname + '/YOUR_FILE_1'),
-        options: { filename: 'test.jpg',  contentType: 'image/jpeg'}
+        value: fs.createReadStream(__dirname + req.query.filename1),
+        options: { filename: filename1,  contentType: 'image/jpeg'}
       },
       {
-        value: fs.createReadStream(__dirname + '/YOUR_FILE_1'),
-        options: {filename: 'captcha.jpg', contentType: 'image/jpeg'}
+        value: fs.createReadStream(__dirname + req.query.filename2),
+        options: {filename: req.query.filename2, contentType: 'image/jpeg'}
       }
     ]
   };
