@@ -139,16 +139,21 @@ app.post('/cafe/post', function (req, res) {
 var fs = require('fs');
 app.post('/cafe/post/multipart', function (req, res) {
   var api_url = 'https://openapi.naver.com/v1/cafe/' + req.body.clubid + '/menu/' + req.body.menuid + '/articles';
-  var _formData = {
-    subject:req.body.subject,
-    content:req.body.content,
-    image: [
-      {
-        value: fs.createReadStream(req.body.filepath),
-        options: { filename: req.body.filename,  contentType: 'image/png'}
-      }
-    ]
-  };
+  var _formData = {};
+  _formData.subject = req.body.subject;
+  _formData.content = req.body.content;
+  _formData.image = [];
+  _formData.image[0] = {
+    value: fs.createReadStream(req.body.filepath),
+    options: { filename: req.body.filename,  contentType: 'image/png'}
+  }
+  if(req.body.filepath2){
+    _formData.image[1] = {
+      value: fs.createReadStream(req.body.filepath2),
+      options: { filename: req.body.filename2,  contentType: 'image/png'}
+    }
+  }
+
   var _req = request.post({url:api_url, formData:_formData,
     headers: {'Authorization': header}}).on('response', function(response) {
     console.log(response.statusCode) // 200
