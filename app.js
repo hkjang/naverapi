@@ -170,7 +170,7 @@ app.post('/datalab/search', function (req, res) {
   };
   datalab_api_url = 'https://openapi.naver.com/v1/datalab/search';
   request.post({
-        url: api_url,
+        url: datalab_api_url,
         body: JSON.stringify(request_body),
         headers: {
           'X-Naver-Client-Id': client_id,
