@@ -16,6 +16,7 @@ var client_secret = client_config.client_secret;
 var state = "RAMDOM_STATE";
 var redirectURI = encodeURI(client_config.callback_url);
 var api_url = "";
+var datalab_api_url = "";
 
 var token = "YOUR_ACCESS_TOKEN";
 var refresh_token = "YOUR_REFRESH_TOKEN";
@@ -157,7 +158,40 @@ app.post('/cafe/post/multipart', function (req, res) {
   _req.pipe(res); // 브라우저로 출력
 });
 
+app.post('/datalab/search', function (req, res) {
+  var request_body = {
+    "startDate": req.body.startDate, //"2017-01-01",
+    "endDate": req.body.endDate, //"2017-04-30",
+    "timeUnit": req.body.timeUnit, //"month",
+    "keywordGroups": req.body.keywordGroups, // [{"groupName": "한글", "keywords": ["한글"]}, {"groupName": "영어", "keywords": ["영어"]}]
+    "device": req.body.device, //"pc",
+    "ages": req.body.ages, // ["1","2"]
+    "gender": req.body.gender // f
+  };
+  datalab_api_url = 'https://openapi.naver.com/v1/datalab/search';
+  request.post({
+        url: api_url,
+        body: JSON.stringify(request_body),
+        headers: {
+          'X-Naver-Client-Id': client_id,
+          'X-Naver-Client-Secret': client_secret,
+          'Content-Type': 'application/json'
+        }
+      },
+      function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          res.writeHead(200, {'Content-Type': 'text/json;charset=utf-8'});
+          res.end(body);
+        } else {
+          console.log('error');
+          if(response != null) {
+            res.status(response.statusCode).end();
+            console.log('error = ' + response.statusCode);
+          }
+        }
+      });
 
+});
 
 app.listen(3000, function () {
   console.log('http://127.0.0.1:3000/naverlogin app listening on port 3000!');
