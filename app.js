@@ -153,15 +153,14 @@ app.post('/cafe/post/multipart', function (req, res) {
       options: { filename: req.body.filename2,  contentType: 'image/png'}
     }
   }
-  setTimeout(function() {
-    var _req = request.post({url:api_url, formData:_formData,
-      headers: {'Authorization': header}}).on('response', function(response) {
-      console.log(response.statusCode) // 200
-      console.log(response.headers['content-type'])
-    });
-    console.log( request.head  );
-    _req.pipe(res); // 브라우저로 출력
-  }, 1000);
+
+  var _req = request.post({url:api_url, formData:_formData,
+    headers: {'Authorization': header}}).on('response', function(response) {
+    console.log(response.statusCode) // 200
+    console.log(response.headers['content-type'])
+  });
+  console.log( request.head  );
+  _req.pipe(res); // 브라우저로 출력
 
 });
 
